@@ -53,7 +53,6 @@ var firstTrain = ""
 
   database.ref().on("child_added", function (snapshot) {
     var sv = snapshot.val();
-
     var firstTrainTime = moment(sv.first,"HH:mm");
     var maxTime = moment.max(moment(),firstTrainTime);
     // Variable: 1) Time in minutes until next train == tMinutesTillTrain
@@ -97,12 +96,12 @@ console.log(sv.first);
 
     }
  
-
-
       console.log(sv.name);
       console.log(sv.dest);
       console.log(sv.first);
       console.log(sv.freq);
+
+     
   
       var tableRow = $("<tr>");
       var tableData1 = $("<td>");
@@ -115,10 +114,15 @@ console.log(sv.first);
       tableData4.text(nextArrival);
       var tableData5 = $("<td>");
       tableData5.text(tMinutesTillTrain);
+    
+      
+    
   
     
-      tableRow.append(tableData1, tableData2, tableData3, tableData4, tableData5);
+      tableRow.append(tableData1, tableData2, tableData3, tableData4, tableData5,);
       $(".table").append(tableRow); 
+
+  
 
 
 
@@ -127,3 +131,16 @@ console.log(sv.first);
     console.log("Errors handled: " + errorObject.code);
 
 });
+
+// function removeTableRow(){
+
+
+
+//   $(document).on("click", function(event) {
+//       var remove = $(this).tableData6.remove(event);
+//       remove.table6
+      
+
+//   })
+
+// }
