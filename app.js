@@ -3,7 +3,7 @@ var destination = ""
 var frequency = ""
 var nextArrival = ""
 var firstTrain = ""
-var minAway = ""
+// var minAway = ""
 
   // Initialize Firebase
   var config = {
@@ -45,7 +45,7 @@ var minAway = ""
         dest: destination,
         first: firstTrain,
         freq: frequency,
-        next: minAway,
+        // next: minAway,
         dateAdded: firebase.database.ServerValue.TIMESTAMP
     });
 
@@ -54,62 +54,74 @@ var minAway = ""
   database.ref().on("child_added", function (snapshot) {
     var sv = snapshot.val();
 
-    console.log(sv.name);
-    console.log(sv.dest);
-    console.log(sv.first);
-    console.log(sv.freq);
-    console.log(sv.next);
+    var firstTrainTime = moment(sv.first,"HH:mm");
+    var maxTime = moment.max(moment(),firstTrainTime);
+    // Variable: 1) Time in minutes until next train == tMinutesTillTrain
+    //2)Actual Time the next train will arrive == nextArrival
+    
+    if (maxTime === firstTrainTime)
+    {
+      //first train has not yet arrived
+      nextArrival = firstTrainTime.format("hh:mm A");
+      tMinutesTillTrain = firstTrainTime.diff(moment(),"minutes");
 
-    var tableRow = $("<tr>");
-    var tableData1 = $("<td>");
-    tableData1.text(sv.name);
-    var tableData2 = $("<td>");
-    tableData2.text(sv.dest);
-    var tableData3 = $("<td>");
-    tableData3.text(sv.freq);
-    var tableData4 = $("<td>");
-    tableData4.text(sv.first);
-    var tableData5 = $("<td>");
-    tableData5.text(sv.next);
+    }
+    else
+    {
+      // first train has already arrived
 
-  
-    tableRow.append(tableData1, tableData2, tableData3, tableData4, tableData5);
-    $(".table").append(tableRow);  
-    // // Assumptions
-    // var tFrequency = 3;
-
-    //  // Time is 3:30 AM
-    //  var firstTime = "03:30";
- 
 // First Time (pushed back 1 year to make sure it comes before current time)
-var firstTimeConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-console.log(firstTimeConverted);   
-  
- // Current Time
+var firstTimeConverted = moment(sv.first,"HH:mm").subtract(1, "years");
+console.log(firstTimeConverted); 
+console.log(sv.first);
+
+      // Current Time
  var currentTime = moment();
  console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
 
  // Difference between the times
  var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
- console.log("DIFFERENCE IN TIME: " + diffTime);
+    console.log("DIFFERENCE IN TIME: " + diffTime);
 
  // Time apart (remainder)
- var tRemainder = diffTime % frequency;
- console.log(tRemainder);
-
- // next train
- var tMinutesTillTrain = frequency - tRemainder;
- console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
-
- sv.next = moment().add(tMinutesTillTrain, 'minutes');
- sv.next = moment(sv.next).format('h:mm A');
+ var tRemainder = diffTime % sv.freq;
+ console.log("remaining minutes: " + tRemainder);
 
  // minutes away
- minAway = frequency - tRemainder;
-  minAway = moment().startOf('day').add(minAway, 'minutes').format('HH:mm');
-	    return moment(minAway).format('HH:mm');
+ var tMinutesTillTrain = sv.freq - tRemainder;
+ console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+  
+//  next Train
+ nextArrival = moment().add(tMinutesTillTrain, "minutes");
+ nextArrival = moment(nextArrival).format('h:mm A');
 
+    }
  
+
+
+      console.log(sv.name);
+      console.log(sv.dest);
+      console.log(sv.first);
+      console.log(sv.freq);
+  
+      var tableRow = $("<tr>");
+      var tableData1 = $("<td>");
+      tableData1.text(sv.name);
+      var tableData2 = $("<td>");
+      tableData2.text(sv.dest);
+      var tableData3 = $("<td>");
+      tableData3.text(sv.freq);
+      var tableData4 = $("<td>");
+      tableData4.text(nextArrival);
+      var tableData5 = $("<td>");
+      tableData5.text(tMinutesTillTrain);
+  
+    
+      tableRow.append(tableData1, tableData2, tableData3, tableData4, tableData5);
+      $(".table").append(tableRow); 
+
+
+
 
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
